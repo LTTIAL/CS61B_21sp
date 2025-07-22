@@ -33,4 +33,6 @@ public class SquarePrimesTest {
         assertEquals("4 -> 4 -> 9 -> 4 -> 25 -> 6", lst.toString());
         assertTrue(changed);
     }
+
+
 }
