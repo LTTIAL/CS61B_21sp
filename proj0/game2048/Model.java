@@ -114,11 +114,76 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        int col = this.board.size() - 1;
+
+        this.board.setViewingPerspective(side);
+
+        for (int c = col; c >= 0; c -= 1) {
+            int point = 0;
+
+            if (this.normalizeOneRow(c)) {
+                changed = true;
+            }
+
+            point = this.mergeNum(c);
+            if (point > 0) {
+                changed = true;
+            }
+
+            this.normalizeOneRow(c);
+
+            this.score += point;
+        }
+
+        this.board.setViewingPerspective(Side.NORTH);
+
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    public boolean normalizeOneRow(int col) {
+        boolean changed = false;
+
+        int ptrNum = this.board.size() - 1;
+        int ptrNull = this.board.size() - 1;
+
+        while (ptrNull >= 0 && ptrNum >= 0) {
+            while (ptrNull >= 0 && this.board.tile(col, ptrNull) != null) {
+                ptrNull -= 1;
+                ptrNum = ptrNull - 1;
+            }
+            if (ptrNum >= 0 && this.board.tile(col, ptrNum) != null) {
+                this.board.move(col, ptrNull, this.board.tile(col, ptrNum));
+                changed = true;
+            }
+            ptrNum -= 1;
+        }
+
+        return changed;
+    }
+
+    public int mergeNum(int col) {
+
+        int point = 0;
+        int ptrMerged = this.board.size() - 1;
+        int ptrNum = ptrMerged - 1;
+
+        while (ptrNum >= 0 && this.board.tile(col, ptrNum) != null) {
+            if (this.board.tile(col, ptrNum) != null && this.board.tile(col, ptrMerged) != null &&
+                    this.board.tile(col, ptrMerged).value() == this.board.tile(col, ptrNum).value()) {
+                this.board.move(col, ptrMerged, this.board.tile(col, ptrNum));
+                point += this.board.tile(col, ptrMerged).value();
+                ptrMerged -= 1;
+                ptrNum -= 1;
+            }
+            ptrMerged -= 1;
+            ptrNum -= 1;
+        }
+
+        return point;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -138,6 +203,17 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int col = b.size();
+        int row = b.size();
+        for (int i = 0; i < col; i++) {
+            for (int j = 0; j < row; j++) {
+                Tile tmp = b.tile(i, j);
+                if (tmp == null) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -148,6 +224,19 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int col = b.size();
+        int row = b.size();
+        for (int i = 0; i < col; i++) {
+            for (int j = 0; j < row; j++) {
+                Tile tmp = b.tile(i, j);
+                if (tmp == null) {
+                    continue;
+                } else if (tmp.value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -159,6 +248,29 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (Model.emptySpaceExists(b) == true) {
+            return true;
+        }
+
+        int col = b.size();
+        int row = b.size();
+
+        for (int i = 0; i < col; i++) {
+            for (int j = 0; j < row - 1; j++) {
+                if (b.tile(i, j).value() == b.tile(i, j + 1).value()){
+                    return true;
+                }
+            }
+        }
+
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col - 1; j++) {
+                if (b.tile(j, i).value() == b.tile(j + 1, i).value()) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
