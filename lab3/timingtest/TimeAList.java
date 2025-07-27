@@ -35,11 +35,7 @@ public class TimeAList {
             opCounts.addLast(baseNumber);
             baseNumber *= 2;
         }
-        baseNumber = 10000000;
 
-        Ns.addLast(baseNumber);
-        times.addLast(helperTime(baseNumber));
-        opCounts.addLast(baseNumber);
 
         printTimingTable(Ns, times, opCounts);
     }
