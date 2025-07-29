@@ -137,7 +137,7 @@ public class LinkedListDeque<T> {
         }
     }
 
-    private class ListIterator implements Iterator {
+    private class ListIterator implements Iterator<T> {
         int index;
         LNode lNode;
 
@@ -162,7 +162,7 @@ public class LinkedListDeque<T> {
         }
     }
 
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return new ListIterator();
     }
 

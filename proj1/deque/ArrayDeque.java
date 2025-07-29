@@ -103,7 +103,7 @@ public class ArrayDeque<T> {
         return items[trueIndex];
     }
 
-    private class ADIterator implements Iterator{
+    private class ADIterator implements Iterator<T>{
         int index;
 
         public ADIterator() {
@@ -125,7 +125,7 @@ public class ArrayDeque<T> {
         }
     }
 
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return new ADIterator();
     }
 
