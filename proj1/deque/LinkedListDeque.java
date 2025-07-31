@@ -140,7 +140,7 @@ public class LinkedListDeque<T> implements Deque<T> {
         int index;
         LNode<T> lNode;
 
-        public ListIterator() {
+        private ListIterator() {
             this.index = 0;
             this.lNode = getFirstNode();
         }
@@ -157,7 +157,7 @@ public class LinkedListDeque<T> implements Deque<T> {
         }
     }
 
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return new ListIterator();
     }
 
@@ -169,7 +169,7 @@ public class LinkedListDeque<T> implements Deque<T> {
         }
     }
 
-    public boolean helperEquals(Deque<T> deque) {
+    private boolean helperEquals(Deque<T> deque) {
         int dequeSize = deque.size();
         int thisSize = size();
         if (dequeSize != thisSize) {
