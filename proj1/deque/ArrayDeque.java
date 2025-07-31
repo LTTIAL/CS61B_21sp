@@ -4,7 +4,7 @@ package deque;
 import java.util.Iterator;
 
 
-public class ArrayDeque<T> implements Deque<T> {
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private int size;
     private int nextItem;
     private int firstItem;
@@ -125,7 +125,7 @@ public class ArrayDeque<T> implements Deque<T> {
         }
     }
 
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return new ADIterator();
     }
 
