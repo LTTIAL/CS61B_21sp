@@ -2,11 +2,12 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> {
+public class ArrayDeque<T> implements Deque<T>{
     int size;
     int nextItem;
     int firstItem;
     T[] items;
+
 
     public ArrayDeque() {
         size = 0;
@@ -15,6 +16,7 @@ public class ArrayDeque<T> {
         items = (T[]) new Object[8];
     }
 
+    @Override
     public int size() {
         return size;
     }
@@ -29,6 +31,7 @@ public class ArrayDeque<T> {
         items = newArr;
     }
 
+    @Override
     public void addFirst(T item) {
         if (nextItem == firstItem) {
             reSize(items.length * 2);
@@ -38,6 +41,7 @@ public class ArrayDeque<T> {
         size++;
     }
 
+    @Override
     public void addLast(T item) {
         if (nextItem == firstItem) {
             reSize(items.length * 2);
@@ -47,14 +51,7 @@ public class ArrayDeque<T> {
         size++;
     }
 
-    public boolean isEmpty() {
-        if (size == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+    @Override
     public void printDeque() {
         int index = (firstItem + 1) % items.length;
         int count = size;
@@ -65,6 +62,7 @@ public class ArrayDeque<T> {
         System.out.println("");
     }
 
+    @Override
     public T removeLast() {
         if (size == 0) {
             return null;
@@ -81,6 +79,7 @@ public class ArrayDeque<T> {
         return tmp;
     }
 
+    @Override
     public T removeFirst() {
         if (size == 0) {
             return null;
@@ -97,6 +96,7 @@ public class ArrayDeque<T> {
         return tmp;
     }
 
+    @Override
     public T get(int offset) {
         int trueIndex = (firstItem + 1) % items.length;
         trueIndex = (trueIndex + offset) % items.length;
@@ -125,7 +125,7 @@ public class ArrayDeque<T> {
         }
     }
 
-    public Iterator<T> iterator() {
+    public Iterator iterator() {
         return new ADIterator();
     }
 

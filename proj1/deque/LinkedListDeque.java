@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> {
+public class LinkedListDeque<T> implements Deque<T>{
 
     private class LNode {
         public T item;
@@ -24,18 +24,12 @@ public class LinkedListDeque<T> {
         sentinel = new LNode();
     }
 
+    @Override
     public int size() {
         return this.size;
     }
 
-    public boolean isEmpty() {
-        if (this.size == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+    @Override
     public T get(int index) {
         LNode lNode;
         lNode = this.sentinel;
@@ -56,6 +50,7 @@ public class LinkedListDeque<T> {
     }
 
     /** Adds an item of type T to the front of the deque. You can assume that item is never null.*/
+    @Override
     public void addFirst(T item) {
         this.size += 1;
 
@@ -71,6 +66,7 @@ public class LinkedListDeque<T> {
 
     }
     /** Adds an item of type T to the back of the deque. You can assume that item is never null.*/
+    @Override
     public void addLast(T item) {
         this.size += 1;
 
@@ -85,6 +81,7 @@ public class LinkedListDeque<T> {
         this.sentinel.previous = tmp;
     }
 
+    @Override
     public T removeFirst() {
         if (this.size > 0) {
             this.size -= 1;
@@ -100,6 +97,7 @@ public class LinkedListDeque<T> {
         return tmp;
     }
 
+    @Override
     public T removeLast() {
         if (this.size > 0) {
             this.size -= 1;
@@ -116,6 +114,7 @@ public class LinkedListDeque<T> {
     }
 
 
+    @Override
     public void printDeque() {
         LNode startNode = this.sentinel.next;
         while (startNode != this.sentinel) {
@@ -162,7 +161,7 @@ public class LinkedListDeque<T> {
         }
     }
 
-    public Iterator<T> iterator() {
+    public Iterator iterator() {
         return new ListIterator();
     }
 
