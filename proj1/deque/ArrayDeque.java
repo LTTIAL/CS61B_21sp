@@ -1,12 +1,15 @@
+
 package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Deque<T>{
-    int size;
-    int nextItem;
-    int firstItem;
-    T[] items;
+
+public class ArrayDeque<T> implements Deque<T> {
+    private int size;
+    private int nextItem;
+    private int firstItem;
+    private T[] items;
+    private final int shrinkThreshold = 16;
 
 
     public ArrayDeque() {
@@ -59,11 +62,12 @@ public class ArrayDeque<T> implements Deque<T>{
             System.out.print(items[index] + " ");
             index = (index + 1) % items.length;
         }
-        System.out.println("");
+        System.out.println();
     }
 
     @Override
     public T removeLast() {
+
         if (size == 0) {
             return null;
         }
@@ -72,7 +76,7 @@ public class ArrayDeque<T> implements Deque<T>{
         items[nextItem] = null;
         size--;
 
-        if (items.length >= 16 && size < (int) (Math.round(items.length / 4.0))) {
+        if (items.length >= shrinkThreshold && size < (int) (Math.round(items.length / 4.0))) {
             reSize((int) (Math.round(items.length / 4.0)));
         }
 
@@ -89,7 +93,7 @@ public class ArrayDeque<T> implements Deque<T>{
         items[firstItem] = null;
         size--;
 
-        if (items.length >= 16 && size < (int) (Math.round(items.length / 4.0))) {
+        if (items.length >= shrinkThreshold && size < (int) (Math.round(items.length / 4.0))) {
             reSize((int) (Math.round(items.length / 4.0)));
         }
 
@@ -103,7 +107,7 @@ public class ArrayDeque<T> implements Deque<T>{
         return items[trueIndex];
     }
 
-    private class ADIterator implements Iterator<T>{
+    private class ADIterator implements Iterator<T> {
         int index;
 
         public ADIterator() {
@@ -111,11 +115,7 @@ public class ArrayDeque<T> implements Deque<T>{
         }
 
         public boolean hasNext() {
-            if (index < size) {
-                return true;
-            } else {
-                return false;
-            }
+            return index < size;
         }
 
         public T next() {
@@ -130,20 +130,23 @@ public class ArrayDeque<T> implements Deque<T>{
     }
 
     public boolean equals(Object o) {
-        if (o instanceof ArrayDeque) {
-            return ADequals((ArrayDeque) o);
+        if (o instanceof Deque) {
+            return helperEquals((Deque) o);
         } else {
             return false;
         }
     }
 
-    private boolean ADequals(ArrayDeque compare) {
-        if (this.size != compare.size) {
+    private boolean helperEquals(Deque deque) {
+        int dequeSize = deque.size();
+        int thisSize = size();
+        if (dequeSize != thisSize) {
             return false;
-        }
-        for (int i = 0; i < this.size; i++) {
-            if (!this.get(i).equals(compare.get(i))) {
-                return false;
+        } else {
+            for (int i = 0; i < thisSize; i++) {
+                if (!deque.get(i).equals(this.get(i))) {
+                    return false;
+                }
             }
         }
         return true;

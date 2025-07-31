@@ -2,22 +2,22 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> implements Deque<T>{
+public class LinkedListDeque<T> implements Deque<T> {
 
-    private class LNode {
-        public T item;
-        public LNode previous;
-        public LNode next;
+    private class LNode<T> {
+        private T item;
+        private LNode<T> previous;
+        private LNode<T> next;
 
-        public LNode (){
+        public LNode() {
             this.item = null;
             this.previous = this;
             this.next = this;
         }
     }
 
-    int size;
-    LNode sentinel;
+    private int size;
+    private LNode<T> sentinel;
 
     public LinkedListDeque() {
         size = 0;
@@ -31,7 +31,7 @@ public class LinkedListDeque<T> implements Deque<T>{
 
     @Override
     public T get(int index) {
-        LNode lNode;
+        LNode<T> lNode;
         lNode = this.sentinel;
         lNode = lNode.next;
         while (index != 0) {
@@ -86,7 +86,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         if (this.size > 0) {
             this.size -= 1;
         }
-        LNode removed = this.getFirstNode();
+        LNode<T> removed = this.getFirstNode();
         T tmp = removed.item;
 
         this.sentinel.next = removed.next;
@@ -102,7 +102,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         if (this.size > 0) {
             this.size -= 1;
         }
-        LNode removed = this.getLastNode();
+        LNode<T> removed = this.getLastNode();
         T tmp = removed.item;
 
         this.sentinel.previous = removed.previous;
@@ -128,7 +128,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         return helperGetRecu(index, this.sentinel.next);
     }
 
-    private T helperGetRecu(int index, LNode lNode) {
+    private T helperGetRecu(int index, LNode<T> lNode) {
         if (index == 0) {
             return lNode.item;
         } else {
@@ -136,9 +136,9 @@ public class LinkedListDeque<T> implements Deque<T>{
         }
     }
 
-    private class ListIterator implements Iterator<T> {
+    private class ListIterator<T> implements Iterator<T> {
         int index;
-        LNode lNode;
+        LNode<T> lNode;
 
         public ListIterator() {
             this.index = 0;
@@ -146,11 +146,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         }
 
         public boolean hasNext() {
-            if (this.index < size) {
-                return true;
-            } else {
-                return false;
-            }
+            return index < size;
         }
 
         public T next() {
@@ -166,22 +162,23 @@ public class LinkedListDeque<T> implements Deque<T>{
     }
 
     public boolean equals(Object o) {
-        if (o instanceof LinkedListDeque) {
-            return equalsList((LinkedListDeque)o);
+        if (o instanceof Deque) {
+            return helperEquals((Deque<T>) o);
         } else {
             return false;
         }
     }
 
-    private boolean equalsList(LinkedListDeque linkedListDeque) {
-        Iterator LI1 = this.iterator();
-        Iterator LI2 = linkedListDeque.iterator();
-        if (this.size != linkedListDeque.size) {
+    public boolean helperEquals(Deque<T> deque) {
+        int dequeSize = deque.size();
+        int thisSize = size();
+        if (dequeSize != thisSize) {
             return false;
-        }
-        while (LI1.hasNext() && LI2.hasNext()) {
-            if (!LI1.next().equals(LI2.next())) {
-                return false;
+        } else {
+            for (int i = 0; i < thisSize; i++) {
+                if (!deque.get(i).equals(this.get(i))) {
+                    return false;
+                }
             }
         }
         return true;
