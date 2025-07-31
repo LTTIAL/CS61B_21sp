@@ -9,7 +9,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         private LNode previous;
         private LNode next;
 
-        public LNode() {
+        private LNode() {
             this.item = null;
             this.previous = this;
             this.next = this;
@@ -65,6 +65,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         this.sentinel.next = tmp;
 
     }
+
     /** Adds an item of type T to the back of the deque. You can assume that item is never null.*/
     @Override
     public void addLast(T item) {
