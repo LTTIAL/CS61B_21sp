@@ -110,7 +110,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private class ADIterator implements Iterator<T> {
         int index;
 
-        public ADIterator() {
+        private ADIterator() {
             index = 0;
         }
 
