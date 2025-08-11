@@ -1,15 +1,20 @@
 package gitlet;
 
 import java.io.File;
-import static gitlet.Utils.*;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.sql.Timestamp;
+import java.util.*;
 
-// TODO: any imports you need here
+import static gitlet.Utils.*;
+import static gitlet.Utils.join;
+
 
 /** Represents a gitlet repository.
  *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author Tau
  */
 public class Repository {
     /**
@@ -24,6 +29,87 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
+    /** The config file*/
+    public static final File CONFIG = join(GITLET_DIR, ".config");
+    public static final File OBJ_DIR = join(GITLET_DIR, "objs");
+    public static final File STAGING_DIR = join(GITLET_DIR, "staging");
 
-    /* TODO: fill in the rest of this class. */
+    public static Config config = new Config();
+
+    public static void saveConfig() {
+        writeObject(CONFIG, config);
+    }
+
+    public static void readConfig() {
+        config = readObject(CONFIG, config.getClass());
+    }
+
+    private static String getHash(Serializable obj) {
+        return sha1(serialize(obj));
+    }
+
+    public static void saveCommit(Commit commit) {
+        assert (commit != null);
+        String hash = getHash(commit);
+        File commitFile = join(OBJ_DIR, hash);
+        assert (!commitFile.exists());
+        writeObject(commitFile, commit);
+    }
+
+    public static void init() {
+        if (GITLET_DIR.exists()) {
+            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            return;
+        }
+        OBJ_DIR.mkdirs();
+        STAGING_DIR.mkdir();
+        Commit init = new Commit("initial commit", null, null, new Date(0));
+
+        String hashOfCommit = getHash(init);
+        config.HEAD = hashOfCommit;
+        config.commits.addLast(hashOfCommit);
+        config.branches.put("master", hashOfCommit);
+
+        saveCommit(init);
+        saveConfig();
+    }
+
+    public static void add(String stagingFile) {
+        // read the config into program.
+        readConfig();
+        // exit if the file we want to stage doesn't exist.
+        File file = join(CWD, stagingFile);
+        if (!file.exists()) {
+            System.out.println("File does not exist.");
+            return;
+        }
+        // get the hash value of the file we want to add.
+        String stagingFileHash = sha1(readContents(file));
+
+        // check if there is a file that is identical to the file we want to stage.
+        // or is there an identical file at the staging folder.
+        Commit headCommit = readObject(join(OBJ_DIR, config.HEAD), Commit.class);
+        File cashe = join(STAGING_DIR, stagingFile);
+        Map<String, String> map = headCommit.getFiles();
+
+        if (map != null) {
+            String commitFileHash = map.get(stagingFile);
+            if (commitFileHash != null) {
+                if (cashe.exists() && commitFileHash.equals(stagingFileHash)) {
+                    cashe.delete();
+                }
+                return;
+            }
+        }
+        // stage the file to the folder
+        writeContents(cashe, readContents(file));
+    }
+
+    public static void commit (String message) {
+        // clone the content of old commit.
+        readConfig();
+        Commit oldCommit = readObject(join(OBJ_DIR, config.HEAD), Commit.class);
+        Commit newCommit = new Commit(oldCommit, message, null);
+    }
+
 }

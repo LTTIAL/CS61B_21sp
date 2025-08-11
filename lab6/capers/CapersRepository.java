@@ -7,7 +7,7 @@ import static capers.Dog.*;
 import static capers.Utils.*;
 
 /** A repository for Capers 
- * @author TODO
+ * @author Tau
  * The structure of a Capers Repository is as follows:
  *
  * .capers/ -- top level folder for all persistent data in your lab12 folder

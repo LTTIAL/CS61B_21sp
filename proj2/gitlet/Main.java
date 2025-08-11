@@ -9,16 +9,28 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
+        if (args.length == 0) {
+            throw new GitletException();
+        }
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                Repository.init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                if (args.length < 2) {
+                    throw new GitletException();
+                }
+                String stagingFile = args[1];
+                Repository.add(stagingFile);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                if (args.length < 2) {
+                    throw new GitletException();
+                }
+                String message = args[1];
+                Repository.commit(message);
+                break;
         }
     }
 }
