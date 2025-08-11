@@ -33,6 +33,7 @@ public class Repository {
     public static final File CONFIG = join(GITLET_DIR, ".config");
     public static final File OBJ_DIR = join(GITLET_DIR, "objs");
     public static final File STAGING_DIR = join(GITLET_DIR, "staging");
+    public static final File REMOVAL_DIR = join(GITLET_DIR, "removal");
 
     public static Config config = new Config();
 
@@ -63,6 +64,7 @@ public class Repository {
         }
         OBJ_DIR.mkdirs();
         STAGING_DIR.mkdir();
+        REMOVAL_DIR.mkdir();
         Commit init = new Commit("initial commit", null, null, new Date(0));
 
         String hashOfCommit = getHash(init);
@@ -110,6 +112,16 @@ public class Repository {
         readConfig();
         Commit oldCommit = readObject(join(OBJ_DIR, config.HEAD), Commit.class);
         Commit newCommit = new Commit(oldCommit, message, null);
+        newCommit.saveStagingFiles();
+        newCommit.updateFiles();
+        String newCommitHash = getHash(newCommit);
+        config.HEAD = newCommitHash;
+        config.commits.addLast(newCommitHash);
+        saveConfig();
+        saveCommit(newCommit);
     }
+
+
+
 
 }

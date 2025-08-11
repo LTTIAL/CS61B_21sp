@@ -37,4 +37,13 @@ public class GeneralTest {
 
     }
 
+    @Test
+    public void checkFileTest() {
+        File objs = Repository.STAGING_DIR;
+        List<String> list= plainFilenamesIn(objs);
+        System.out.println(list.size());
+        for (String s: list) {
+            System.out.println(s);
+        }
+    }
 }

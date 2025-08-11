@@ -2,14 +2,16 @@ package gitlet;
 
 
 
+import java.io.File;
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.Date;
 
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
-import static gitlet.Utils.serialize;
-import static gitlet.Utils.sha1;
+import static gitlet.Utils.*;
+import static gitlet.Utils.join;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -50,7 +52,12 @@ public class Commit implements Serializable {
         this.parent = getHash(oldCommit);
         this.mergedParent = mergedParent;
         this.timestamp = new Date(System.currentTimeMillis());
+        // if the old commit has a non-null files copy it.
+        Map<String, String> map = oldCommit.getFiles();
         this.files = new TreeMap<>();
+        if (map != null) {
+            this.files.putAll(map);
+        }
     }
 
 
@@ -63,7 +70,39 @@ public class Commit implements Serializable {
         return sha1(serialize(obj));
     }
 
+    private static boolean isThereChanges() {
+        List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
+        List<String> removal = plainFilenamesIn(Repository.REMOVAL_DIR);
+        if (staging.size() != 0 || removal.size() != 0) {
+            return true;
+        }
+        return false;
+    }
 
+    public void updateFiles() {
+        List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
+        List<String> removal = plainFilenamesIn(Repository.REMOVAL_DIR);
 
+        for (String s: staging) {
+            File file = join(Repository.STAGING_DIR, s);
+            String fileHash = sha1(readContents(file));
+            files.put(s, fileHash);
+        }
+        for (String s: removal) {
+            File file = join(Repository.STAGING_DIR, s);
+            String fileHash = sha1(readContents(file));
+            files.put(s, fileHash);
+        }
+    }
+
+    public void saveStagingFiles() {
+        List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
+        for (String s: staging) {
+            File fileStaging = join(Repository.STAGING_DIR, s);
+            String fileHash = sha1(readContents(fileStaging));
+            File fileSaved = join(Repository.OBJ_DIR, fileHash);
+            writeContents(fileSaved, readContents(fileStaging));
+        }
+    }
 
 }
