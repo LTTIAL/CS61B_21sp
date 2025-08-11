@@ -70,7 +70,7 @@ public class Commit implements Serializable {
         return sha1(serialize(obj));
     }
 
-    private static boolean isThereChanges() {
+    public boolean isThereChanges() {
         List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
         List<String> removal = plainFilenamesIn(Repository.REMOVAL_DIR);
         if (staging.size() != 0 || removal.size() != 0) {
@@ -104,5 +104,14 @@ public class Commit implements Serializable {
             writeContents(fileSaved, readContents(fileStaging));
         }
     }
+
+    public void cleanStagingFile() {
+        List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
+        for (String s: staging) {
+            File fileStaging = join(Repository.STAGING_DIR, s);
+            fileStaging.delete();
+        }
+    }
+
 
 }

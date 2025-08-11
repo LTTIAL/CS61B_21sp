@@ -2,8 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static gitlet.Utils.*;
@@ -99,8 +97,11 @@ public class Repository {
             if (commitFileHash != null) {
                 if (cashe.exists() && commitFileHash.equals(stagingFileHash)) {
                     cashe.delete();
+                    return;
                 }
-                return;
+                if (commitFileHash.equals(stagingFileHash)) {
+                    return;
+                }
             }
         }
         // stage the file to the folder
@@ -108,19 +109,34 @@ public class Repository {
     }
 
     public static void commit (String message) {
+
         // clone the content of old commit.
         readConfig();
         Commit oldCommit = readObject(join(OBJ_DIR, config.HEAD), Commit.class);
         Commit newCommit = new Commit(oldCommit, message, null);
-        newCommit.saveStagingFiles();
+
+        //check if there is any changes.
+        if (!newCommit.isThereChanges()) {
+            System.out.println("No changes added to the commit.");
+            return;
+        }
+
+        // update the table of commit.
         newCommit.updateFiles();
+
+        // save staging file to obj and delete it from staging folder.
+        newCommit.saveStagingFiles();
+        newCommit.cleanStagingFile();
+
+        // save config
         String newCommitHash = getHash(newCommit);
         config.HEAD = newCommitHash;
         config.commits.addLast(newCommitHash);
         saveConfig();
+
+        // save commit
         saveCommit(newCommit);
     }
-
 
 
 

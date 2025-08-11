@@ -20,16 +20,6 @@ public class GeneralTest {
     }
 
     @Test
-    public void writeObj() {
-        List<Object> list = new ArrayList<>();
-        LinkedList<Object> linkedList = new LinkedList<>();
-        linkedList.addLast(list);
-        File file = new File(System.getProperty("user.dir"));
-        file = join(file, "test");
-        writeObject(file, linkedList);
-    }
-
-    @Test
     public void HEADFileTest() {
         Repository.readConfig();
         System.out.println(Repository.config.HEAD);
