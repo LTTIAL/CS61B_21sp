@@ -33,7 +33,7 @@ public class Repository {
     public static final File STAGING_DIR = join(GITLET_DIR, "staging");
     public static final File REMOVAL_DIR = join(GITLET_DIR, "removal");
 
-    public static Config config = new Config();
+    private static Config config = new Config();
 
     public static void saveConfig() {
         writeObject(CONFIG, config);
@@ -77,6 +77,7 @@ public class Repository {
     public static void add(String stagingFile) {
         // read the config into program.
         readConfig();
+
         // exit if the file we want to stage doesn't exist.
         File file = join(CWD, stagingFile);
         if (!file.exists()) {
@@ -102,13 +103,52 @@ public class Repository {
                 if (commitFileHash.equals(stagingFileHash)) {
                     return;
                 }
+            } else {
+                writeContents(cashe, readContents(file));
+                return;
             }
         }
         // stage the file to the folder
         writeContents(cashe, readContents(file));
     }
 
-    public static void commit (String message) {
+
+    public static void remove(String removedFile) {
+        // read the config into program.
+        readConfig();
+
+        // calculate the hash value of the file.
+        File inWorking = join(CWD, removedFile);
+        String hash = sha1(readContents(inWorking));
+
+        //using the hash value to create File object verify if it is added or tracked.
+        File inStaging = join(STAGING_DIR, removedFile);
+        File inObj = join(OBJ_DIR, hash);
+        File removal = join(REMOVAL_DIR, removedFile);
+
+        // if it is added. then we manipulate as follows.
+        if (inStaging.exists()) {
+            inStaging.delete(); // delete the file from staging folder.
+            return;
+        }
+
+        // if it is tracked. we do as follows.
+        if (inObj.exists()) {
+
+            writeContents(removal, readContents(inWorking)); // make it untracked. (put it in removal folder)
+            inWorking.delete(); // if the file is tracked, first we delete it from CWD.
+
+            return;
+        }
+
+        if ((!inStaging.exists()) && (!inObj.exists())) {
+            System.out.println("No reason to remove the file.");
+            return;
+        }
+
+    }
+
+    public static void commit(String message) {
 
         // clone the content of old commit.
         readConfig();
@@ -121,8 +161,7 @@ public class Repository {
             return;
         }
 
-        // update the table of commit.
-        newCommit.updateFiles();
+        newCommit.updateFiles();  // update the table of commit.
 
         // save staging file to obj and delete it from staging folder.
         newCommit.saveStagingFiles();
@@ -138,6 +177,29 @@ public class Repository {
         saveCommit(newCommit);
     }
 
+    public static void log() {
+        readConfig();
+
+        File HEADCommit = join(OBJ_DIR, config.HEAD);
+        Commit HEAD = readObject(HEADCommit, Commit.class);
+
+        while (HEAD.getParent() != null) {
+            File parentCommit = join(OBJ_DIR, HEAD.getParent());
+            System.out.println("===");
+            System.out.println("commit " + getHash(HEAD));
+            System.out.println("Date: " + HEAD.getTimestamp());
+            System.out.println("Message " + HEAD.getMessage());
+            System.out.println("");
+            HEAD = readObject(parentCommit, Commit.class);
+        }
+
+        System.out.println("===");
+        System.out.println("commit " + getHash(HEAD));
+        System.out.println("Date: " + HEAD.getTimestamp());
+        System.out.println("Message " + HEAD.getMessage());
+        System.out.println("");
+
+    }
 
 
 }

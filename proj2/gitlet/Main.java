@@ -13,7 +13,7 @@ public class Main {
             throw new GitletException();
         }
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 Repository.init();
                 break;
@@ -31,6 +31,19 @@ public class Main {
                 }
                 String message = args[1];
                 Repository.commit(message);
+                break;
+            case "rm":
+                if (args.length < 2) {
+                    throw new GitletException();
+                }
+                String removalFile = args[1];
+                Repository.remove(removalFile);
+                break;
+            case "log":
+                Repository.log();
+                break;
+            default:
+                System.out.println("invalid instruction.");
                 break;
         }
     }

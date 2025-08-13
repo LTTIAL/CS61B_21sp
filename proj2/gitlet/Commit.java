@@ -60,7 +60,17 @@ public class Commit implements Serializable {
         }
     }
 
+    public String getParent() {
+        return parent;
+    }
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 
     public TreeMap<String, String> getFiles() {
         return files;
@@ -79,6 +89,7 @@ public class Commit implements Serializable {
         return false;
     }
 
+    //update commit depend on the file in staging and removal folder.
     public void updateFiles() {
         List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
         List<String> removal = plainFilenamesIn(Repository.REMOVAL_DIR);
@@ -89,12 +100,11 @@ public class Commit implements Serializable {
             files.put(s, fileHash);
         }
         for (String s: removal) {
-            File file = join(Repository.STAGING_DIR, s);
-            String fileHash = sha1(readContents(file));
-            files.put(s, fileHash);
+            files.remove(s);
         }
     }
 
+    // copy the file in staging folder to obj.
     public void saveStagingFiles() {
         List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
         for (String s: staging) {
@@ -105,11 +115,17 @@ public class Commit implements Serializable {
         }
     }
 
+    // clean the staging folder and the removal folder.
     public void cleanStagingFile() {
         List<String> staging = plainFilenamesIn(Repository.STAGING_DIR);
+        List<String> removal = plainFilenamesIn(Repository.REMOVAL_DIR);
         for (String s: staging) {
             File fileStaging = join(Repository.STAGING_DIR, s);
             fileStaging.delete();
+        }
+        for (String s: removal) {
+            File fileRemoval = join(Repository.REMOVAL_DIR, s);
+            fileRemoval.delete();
         }
     }
 

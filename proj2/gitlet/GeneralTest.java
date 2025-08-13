@@ -20,14 +20,6 @@ public class GeneralTest {
     }
 
     @Test
-    public void HEADFileTest() {
-        Repository.readConfig();
-        System.out.println(Repository.config.HEAD);
-        Commit headcommit = readObject(join(Repository.OBJ_DIR, Repository.config.HEAD), Commit.class);
-
-    }
-
-    @Test
     public void checkFileTest() {
         File objs = Repository.STAGING_DIR;
         List<String> list= plainFilenamesIn(objs);
