@@ -183,23 +183,49 @@ public class Repository {
         File HEADCommit = join(OBJ_DIR, config.HEAD);
         Commit HEAD = readObject(HEADCommit, Commit.class);
 
-        while (HEAD.getParent() != null) {
-            File parentCommit = join(OBJ_DIR, HEAD.getParent());
+        while (HEAD != null) {
             System.out.println("===");
             System.out.println("commit " + getHash(HEAD));
             System.out.println("Date: " + HEAD.getTimestamp());
             System.out.println("Message " + HEAD.getMessage());
             System.out.println("");
-            HEAD = readObject(parentCommit, Commit.class);
+            if (HEAD.getParent() != null) {
+                File parentCommit = join(OBJ_DIR, HEAD.getParent());
+                HEAD = readObject(parentCommit, Commit.class);
+            } else {
+                return;
+            }
         }
-
-        System.out.println("===");
-        System.out.println("commit " + getHash(HEAD));
-        System.out.println("Date: " + HEAD.getTimestamp());
-        System.out.println("Message " + HEAD.getMessage());
-        System.out.println("");
-
     }
 
+    public static void checkoutHEADCommit(String fileName) {
+        readConfig();
+        checkoutCommit(config.HEAD, fileName);
+    }
+
+    public static void checkoutBranch(String branchName, String fileName) {
+        readConfig();
+    }
+
+    // unchecked yet.
+    public static void checkoutCommit(String commitHash, String fileName) {
+        readConfig();
+        for (String commit: config.commits) {
+            if (commit.equals(commitHash)) {
+                File commitFile = join(OBJ_DIR, commit);
+                Commit commitFinded = readObject(commitFile, Commit.class);
+                File fileOverwritten = join(CWD, fileName);
+                String commitVersionHash = commitFinded.getFiles().get(fileName);
+                if (commitVersionHash == null) {
+                    System.out.println("File does not exist in that commit.");
+                    return;
+                }
+                File commitVersion = join(OBJ_DIR, commitVersionHash);
+                writeContents(fileOverwritten, readContents(commitVersion));
+                return;
+            }
+        }
+        System.out.println("No commit with that id exists.");
+    }
 
 }
