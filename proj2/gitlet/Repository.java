@@ -2,6 +2,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static gitlet.Utils.*;
@@ -9,14 +13,12 @@ import static gitlet.Utils.join;
 
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
  *  @author Tau
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -66,9 +68,14 @@ public class Repository {
         Commit init = new Commit("initial commit", null, null, new Date(0));
 
         String hashOfCommit = getHash(init);
-        config.HEAD = hashOfCommit;
-        config.commits.addLast(hashOfCommit);
-        config.branches.put("master", hashOfCommit);
+        config.setHEAD(hashOfCommit);
+        LinkedList<String> linkedList = config.getCommits();
+        linkedList.addLast(hashOfCommit);
+        config.setCommits(linkedList);
+
+        Map<String, String> map = config.getBranches();
+        map.put("master", hashOfCommit);
+        config.setBranches(map);
 
         saveCommit(init);
         saveConfig();
@@ -89,7 +96,7 @@ public class Repository {
 
         // check if there is a file that is identical to the file we want to stage.
         // or is there an identical file at the staging folder.
-        Commit headCommit = readObject(join(OBJ_DIR, config.HEAD), Commit.class);
+        Commit headCommit = readObject(join(OBJ_DIR, config.getHEAD()), Commit.class);
         File cashe = join(STAGING_DIR, stagingFile);
         Map<String, String> map = headCommit.getFiles();
 
@@ -152,7 +159,7 @@ public class Repository {
 
         // clone the content of old commit.
         readConfig();
-        Commit oldCommit = readObject(join(OBJ_DIR, config.HEAD), Commit.class);
+        Commit oldCommit = readObject(join(OBJ_DIR, config.getHEAD()), Commit.class);
         Commit newCommit = new Commit(oldCommit, message, null);
 
         //check if there is any changes.
@@ -169,29 +176,41 @@ public class Repository {
 
         // save config
         String newCommitHash = getHash(newCommit);
-        config.HEAD = newCommitHash;
-        config.commits.addLast(newCommitHash);
+        config.setHEAD(newCommitHash);
+        LinkedList<String> linkedList = config.getCommits();
+        linkedList.addLast(newCommitHash);
+        config.setCommits(linkedList);
         saveConfig();
 
         // save commit
         saveCommit(newCommit);
     }
 
+    private static String getGitFormatTimestamp(Date date) {
+        Instant instant = date.toInstant();
+        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z");
+        String gitDate = zonedDateTime.format(formatter);
+        return gitDate;
+    }
+
     public static void log() {
         readConfig();
 
-        File HEADCommit = join(OBJ_DIR, config.HEAD);
-        Commit HEAD = readObject(HEADCommit, Commit.class);
+        File headCommit = join(OBJ_DIR, config.getHEAD());
+        Commit head = readObject(headCommit, Commit.class);
 
-        while (HEAD != null) {
+        while (head != null) {
             System.out.println("===");
-            System.out.println("commit " + getHash(HEAD));
-            System.out.println("Date: " + HEAD.getTimestamp());
-            System.out.println("Message " + HEAD.getMessage());
+            System.out.println("commit " + getHash(head));
+            System.out.println("Date: " + getGitFormatTimestamp(head.getTimestamp()));
+
+
+            System.out.println(head.getMessage());
             System.out.println("");
-            if (HEAD.getParent() != null) {
-                File parentCommit = join(OBJ_DIR, HEAD.getParent());
-                HEAD = readObject(parentCommit, Commit.class);
+            if (head.getParent() != null) {
+                File parentCommit = join(OBJ_DIR, head.getParent());
+                head = readObject(parentCommit, Commit.class);
             } else {
                 return;
             }
@@ -200,17 +219,18 @@ public class Repository {
 
     public static void checkoutHEADCommit(String fileName) {
         readConfig();
-        checkoutCommit(config.HEAD, fileName);
+        checkoutCommit(config.getHEAD(), fileName);
     }
 
+    //unfinished yet.
     public static void checkoutBranch(String branchName, String fileName) {
         readConfig();
     }
 
-    // unchecked yet.
+    // not totally checked yet.
     public static void checkoutCommit(String commitHash, String fileName) {
         readConfig();
-        for (String commit: config.commits) {
+        for (String commit: config.getCommits()) {
             if (commit.equals(commitHash)) {
                 File commitFile = join(OBJ_DIR, commit);
                 Commit commitFinded = readObject(commitFile, Commit.class);

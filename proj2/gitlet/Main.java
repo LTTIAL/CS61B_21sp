@@ -1,7 +1,7 @@
 package gitlet;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author Tau
  */
 public class Main {
 
@@ -41,6 +41,18 @@ public class Main {
                 break;
             case "log":
                 Repository.log();
+                break;
+            case "checkout":
+                if (args.length == 2) {
+                    break; // not finished.
+                } else if (args.length == 3) {
+                    String fileName = args[2];
+                    Repository.checkoutHEADCommit(fileName);
+                } else if (args.length == 4) {
+                    String fileName = args[3];
+                    String commitHash = args[1];
+                    Repository.checkoutCommit(commitHash, fileName);
+                }
                 break;
             default:
                 System.out.println("invalid instruction.");
