@@ -24,61 +24,80 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
     }
 
-
     public void clear() {
         root = null;
     }
 
     public boolean containsKey(K key) {
-        if (key == null) {
-            return false;
-        }
-        return get(key) != null;
-    }
-    
-    public V get(K key) {
-        return get(root, key);
+        return containKeyHelper(key, root);
     }
 
-    private V get(BSTNode node, K key) {
-        if (key == null) {
-            throw new IllegalArgumentException();
-        }
-        if (node == null) {
+    private boolean containKeyHelper(K key, BSTNode bstNode) {
+       if (bstNode == null) {
+           return false;
+       }
+
+       if (bstNode.key.equals(key)) {
+           return true;
+       }
+
+       return containKeyHelper(key, bstNode.left) || containKeyHelper(key, bstNode.right);
+    }
+
+    public V get(K key) {
+        return getHelper(key, root);
+    }
+
+    public V getHelper(K key, BSTNode bstNode) {
+        if (bstNode == null) {
             return null;
         }
-        int cmp = key.compareTo(node.key);
-        if (cmp > 0) {
-            return get(node.right, key);
-        }else if (cmp < 0) {
-            return get(node.left, key);
+
+        if (bstNode.key.compareTo(key) > 0) {
+            return getHelper(key, bstNode.left);
+        } else if (bstNode.key.compareTo(key) < 0) {
+            return getHelper(key, bstNode.right);
+        } else {
+            return bstNode.val;
         }
-        else return node.val;
     }
 
     public int size() {
-        return size(root);
+        if (root != null) {
+            return root.size;
+        }
+        return 0;
     }
 
-    private int size(BSTNode node) {
-        if (node == null) {
-            return 0;
-        }else return node.size;
+    public void put(K key, V value) {
+        if (root == null) {
+            root = new BSTNode(key, value, 1);
+            return;
+        }
+
+        putHelper(key, value, root);
     }
 
-    public void put(K key, V val) {
-        if (key == null) throw new IllegalArgumentException("calls put() with a null key");
-        root = put(root, key, val);
-    }
+    private void putHelper(K key, V value, BSTNode bstNode) {
 
-    private BSTNode put(BSTNode x, K key, V val) {
-        if (x == null) return new BSTNode(key, val, 1);
-        int cmp = key.compareTo(x.key);
-        if      (cmp < 0) x.left  = put(x.left,  key, val);
-        else if (cmp > 0) x.right = put(x.right, key, val);
-        else              x.val   = val;
-        x.size = 1 + size(x.left) + size(x.right);
-        return x;
+        if (bstNode.key.compareTo(key) > 0) {
+            bstNode.size++;
+            if (bstNode.left != null) {
+                putHelper(key, value, bstNode.left);
+            } else {
+                bstNode.left = new BSTNode(key, value, 1);
+            }
+        } else if (bstNode.key.compareTo(key) == 0) {
+            bstNode.val = value;
+        } else {
+            bstNode.size++;
+            if (bstNode.right != null) {
+                putHelper(key, value, bstNode.right);
+            } else {
+                bstNode.right = new BSTNode(key, value, 1);
+            }
+
+        }
     }
 
     public void printInOrder() {
@@ -97,7 +116,25 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         throw new UnsupportedOperationException();
     }
 
-    public Iterator<K> iterator() {
-        throw new UnsupportedOperationException();
+    private class MapIterator implements Iterator<K> {
+        int size;
+
+        public MapIterator() {
+            size = size();
+        }
+
+        public boolean hasNext() {
+            return size != 0;
+        }
+
+        public K next() {
+            return null;
+        }
     }
+
+    public Iterator<K> iterator() {
+        return new MapIterator();
+    }
+
+
 }
