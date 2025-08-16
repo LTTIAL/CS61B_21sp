@@ -44,7 +44,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return getHelper(key, root);
     }
 
-    public V getHelper(K key, BSTNode bstNode) {
+    private V getHelper(K key, BSTNode bstNode) {
         if (bstNode == null) {
             return null;
         }
@@ -100,7 +100,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         System.out.println(getIterationString(root));
     }
 
-    public String getIterationString(BSTNode node) {
+    private String getIterationString(BSTNode node) {
         if (node == null) {
             return " ";
         } else {
@@ -192,7 +192,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     public Iterator<K> iterator() {
-        return new MapIterator();
+        throw new UnsupportedOperationException();
     }
 
 
