@@ -1,10 +1,6 @@
 package bstmap;
 
-import org.antlr.v4.runtime.tree.Tree;
-
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     private BSTNode root;
@@ -33,15 +29,15 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     private boolean containKeyHelper(K key, BSTNode bstNode) {
-       if (bstNode == null) {
-           return false;
-       }
+        if (bstNode == null) {
+            return false;
+        }
 
-       if (bstNode.key.equals(key)) {
-           return true;
-       }
+        if (bstNode.key.equals(key)) {
+            return true;
+        }
 
-       return containKeyHelper(key, bstNode.left) || containKeyHelper(key, bstNode.right);
+        return containKeyHelper(key, bstNode.left) || containKeyHelper(key, bstNode.right);
     }
 
     public V get(K key) {
@@ -101,6 +97,15 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     public void printInOrder() {
+        System.out.println(getIterationString(root));
+    }
+
+    public String getIterationString(BSTNode node) {
+        if (node == null) {
+            return " ";
+        } else {
+            return getIterationString(node.left) + node.val.toString() + getIterationString(node.right);
+        }
 
     }
 
@@ -109,7 +114,47 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        V val = get(key);
+        root = remove(key, root);
+        return val;
+    }
+
+
+
+    private BSTNode remove(K key, BSTNode node) {
+        if (node == null) {
+            return null;
+        }
+
+        int compare = node.key.compareTo(key);
+        if (compare > 0) {
+            node.size--;
+            node.left = remove(key, node.left);
+        } else if (compare < 0) {
+            node.size--;
+            node.right = remove(key, node.right);
+        } else {
+            if (node.left == null && node.right == null) {
+                return null;
+            } else if (node.left == null) {
+                return node.right;
+            } else if (node.right == null) {
+                return node.left;
+            } else {
+                BSTNode inorderSuccessor = findInorderSuccessor(node.right);
+                node.key = inorderSuccessor.key;
+                node.val = inorderSuccessor.val;
+                node.right = remove(key, node.right);
+            }
+        }
+        return node;
+    }
+
+    private BSTNode findInorderSuccessor(BSTNode rightNode) {
+        while (rightNode.left != null) {
+            rightNode = rightNode.left;
+        }
+        return rightNode;
     }
 
     public V remove(K key, V value) {
@@ -117,14 +162,28 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     private class MapIterator implements Iterator<K> {
-        int size;
+        Stack<K> stack;
 
         public MapIterator() {
-            size = size();
+            BSTNode node = root;
+
+            stack = new Stack<>();
+
+            while (node != null) {
+                stack.push(node.key);
+                node = node.left;
+            }
         }
 
         public boolean hasNext() {
-            return size != 0;
+            return !stack.empty();
+        }
+
+        public BSTNode getNode(K key) {
+            if (root == null) {
+                return null;
+            }
+            return null;
         }
 
         public K next() {
