@@ -39,6 +39,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private final int defaultItems = 0;
     private final double defaultFactor = 1.5;
     private final int defaultBucketLength = 10;
+    private final long UNSIGNED_MASK_64_BITS = 0x00000000FFFFFFFFL;
     private int size;
     private int items;
     private double resizeFactor;
@@ -149,7 +150,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     private Node getNode(K key) {
         long hash = key.hashCode();
-        hash = hash & 0x00000000FFFFFFFFL;
+        hash = hash & UNSIGNED_MASK_64_BITS;
         long index = hash % buckets.length;
         Collection<Node> collection = buckets[(int) index];
         for (Node node: collection) {
@@ -170,7 +171,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public void put(K key, V value) {
 
         long hash = key.hashCode();
-        hash = hash & 0x00000000FFFFFFFFL;
+        hash = hash & UNSIGNED_MASK_64_BITS;
         long index = hash % buckets.length;
         Collection<Node> bucket = buckets[(int) index];
         if (bucket.size() == 0) {
@@ -201,7 +202,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         for (Collection<Node> collection: buckets) {
             for (Node node: collection) {
                 long hash = node.hashCode();
-                hash = hash & 0x00000000FFFFFFFFL;
+                hash = hash & UNSIGNED_MASK_64_BITS;
                 long index = hash % newBuckets.length;
                 if (newBuckets[(int) index].size() == 0) {
                     size++;
